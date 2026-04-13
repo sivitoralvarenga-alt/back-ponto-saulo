@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+using PontoSaulo.Models;
 
 namespace PontoSaulo.Data;
 
@@ -43,6 +44,37 @@ public sealed class DatabaseService
 			cmd.CommandText = SqlSchema.TimeRecordsTable;
 			cmd.ExecuteNonQuery();
 		}
+	}
+
+	public void InsertPonto(TimeRecord record)
+	{
+		var builder = new SqliteConnectionStringBuilder
+		{
+			DataSource = DatabasePath
+		};
+
+		using var connection = new SqliteConnection(builder.ConnectionString);
+		connection.Open();
+
+		using var cmd = connection.CreateCommand();
+
+		cmd.CommandText =
+		@"
+		INSERT INTO TimeRecord
+		(userId, timestamp, latitude, longitude, type, authMethod, sucess)
+		VALUES
+		($userId, $timestamp, $latitude, $longitude, $type, $authMethod, $sucess);
+		";
+
+		cmd.Parameters.AddWithValue("$userId", record.UserId);
+		cmd.Parameters.AddWithValue("$timestamp", record.Timestamp);
+		cmd.Parameters.AddWithValue("$latitude", (object?)record.Latitude ?? DBNull.Value);
+		cmd.Parameters.AddWithValue("$longitude", (object?)record.Longitude ?? DBNull.Value);
+		cmd.Parameters.AddWithValue("$type", record.Type);
+		cmd.Parameters.AddWithValue("$authMethod", record.AuthMethod);
+		cmd.Parameters.AddWithValue("$sucess", record.Sucess ? 1 : 0);
+
+		cmd.ExecuteNonQuery();
 	}
 }
 

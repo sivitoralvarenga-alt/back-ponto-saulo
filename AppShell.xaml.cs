@@ -1,14 +1,9 @@
-namespace PontoSaulo;
+﻿namespace MyMauiApp;
 
 public partial class AppShell : Shell
 {
-	public AppShell(MainPage mainPage)
+	public AppShell()
 	{
 		InitializeComponent();
-		Items.Add(new ShellContent
-		{
-			Title = "Início",
-			Content = mainPage
-		});
 	}
 }
