@@ -20,12 +20,31 @@ public partial class MainPage : ContentPage
 		BindingContext = new RelogioViewModel();
 		Geolocalizar();
 
-		var db = new DatabaseService();
-		
-
 		var cultura = new CultureInfo("pt-BR");
    		CultureInfo.DefaultThreadCurrentCulture = cultura;
     	CultureInfo.DefaultThreadCurrentUICulture = cultura;
+	}
+
+	protected override void OnAppearing()
+	{
+		base.OnAppearing();
+		AtualizarRotuloUsuario();
+	}
+
+	private void AtualizarRotuloUsuario()
+	{
+		var id = SessaoUsuario.ObterId();
+		if (!id.HasValue)
+		{
+			LabelUsuarioAtual.Text = "Nenhum usuário selecionado — use a aba Usuários.";
+			return;
+		}
+
+		var db = new DatabaseService();
+		var u = db.ObterUsuario(id.Value);
+		LabelUsuarioAtual.Text = u == null
+			? "Usuário salvo não encontrado. Escolha outro na aba Usuários."
+			: $"Registrando como: {u.Nome}";
 	}
 
 	private async void OnBotaoEntradaClicked(object? sender, EventArgs e)
@@ -71,7 +90,7 @@ public partial class MainPage : ContentPage
 		{
 			bool resposta = await tela.DisplayAlertAsync(
 				"Confirmação",
-				"Deseja marcar uma entrada de ponto?",
+				"Deseja marcar uma saída de ponto?",
 				"Sim",
 				"Não"
 			);
@@ -98,6 +117,9 @@ public partial class MainPage : ContentPage
 			);
 		}
 
+		if (local == null)
+			return;
+
 		var posicao = SphericalMercator.FromLonLat(
 			local.Longitude,
 			local.Latitude
@@ -120,25 +142,35 @@ public partial class MainPage : ContentPage
 
 	private async Task RegistrarPonto(string tipo)
 	{
-	var db = new DatabaseService();
+		var userId = SessaoUsuario.ObterId();
+		if (!userId.HasValue)
+		{
+			await DisplayAlert(
+				"Usuário",
+				"Selecione um usuário na aba Usuários antes de registrar o ponto.",
+				"OK");
+			return;
+		}
 
-    var local = await Geolocation.GetLocationAsync(
-        new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10))
-    );
+		var db = new DatabaseService();
 
-    var agoraUtc = DateTime.UtcNow;
+		var local = await Geolocation.GetLocationAsync(
+			new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10))
+		);
 
-    var registro = new TimeRecord
-    {
-        UserId = 1, // depois você pode trocar por usuário real
-        Timestamp = agoraUtc.ToString("o"),
-        Latitude = local?.Latitude,
-        Longitude = local?.Longitude,
-        Type = tipo,
-        AuthMethod = "manual",
-        Sucess = true
-    };
+		var agoraUtc = DateTime.UtcNow;
 
-    	db.InsertPonto(registro);
+		var registro = new TimeRecord
+		{
+			UserId = userId.Value,
+			Timestamp = agoraUtc.ToString("o"),
+			Latitude = local?.Latitude,
+			Longitude = local?.Longitude,
+			Type = tipo,
+			AuthMethod = "manual",
+			Sucess = true
+		};
+
+		db.InsertPonto(registro);
 	}
 }

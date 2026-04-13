@@ -21,6 +21,11 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-		return builder.Build();
+		var app = builder.Build();
+
+		var db = new PontoSaulo.Data.DatabaseService();
+		db.Initialize();
+
+		return app;
 	}
 }

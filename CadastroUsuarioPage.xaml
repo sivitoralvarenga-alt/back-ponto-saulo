@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MyMauiApp.CadastroUsuarioPage"
+             Title="Novo usuário">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16">
+            <Label Text="Cadastro" Style="{StaticResource Headline}" />
+            <Label Text="Nome completo" />
+            <Entry x:Name="NomeEntry" Placeholder="Nome" />
+            <Label Text="E-mail (opcional)" />
+            <Entry x:Name="EmailEntry" Placeholder="email@exemplo.com" Keyboard="Email" />
+            <Label Text="PIN (mínimo 4 dígitos)" />
+            <Entry x:Name="PinEntry" Placeholder="PIN" IsPassword="True" Keyboard="Numeric" />
+            <Label Text="Confirmar PIN" />
+            <Entry x:Name="ConfirmarPinEntry" Placeholder="Repita o PIN" IsPassword="True" Keyboard="Numeric" />
+
+            <Button Text="Salvar" Clicked="OnSalvarClicked" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

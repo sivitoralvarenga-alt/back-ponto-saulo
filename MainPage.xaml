@@ -15,6 +15,11 @@
                 SemanticProperties.HeadingLevel="Level1" />
 
             <Label
+                x:Name="LabelUsuarioAtual"
+                Text="Nenhum usuário selecionado — use a aba Usuários."
+                Style="{StaticResource SubHeadline}" />
+
+            <Label
                 Text="Entrada e saída de ponto"
                 Style="{StaticResource SubHeadline}"
                 SemanticProperties.HeadingLevel="Level2"

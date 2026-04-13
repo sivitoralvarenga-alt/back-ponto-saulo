@@ -8,7 +8,15 @@
 
     <ShellContent
         Title="Registro de Ponto"
-        ContentTemplate = "{DataTemplate local:MainPage}" />
+        ContentTemplate="{DataTemplate local:MainPage}" />
+
+    <ShellContent
+        Title="Usuários"
+        ContentTemplate="{DataTemplate local:UsuariosPage}" />
+
+    <ShellContent
+        Title="Meus registros"
+        ContentTemplate="{DataTemplate local:MeusRegistrosPage}" />
     
     <!--<TabBar>
         <Tab Title="calendario" Icon="📅">
