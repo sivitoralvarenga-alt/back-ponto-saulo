@@ -32,7 +32,7 @@ public partial class CadastroUsuarioPage : ContentPage
 			return;
 		}
 
-		try
+        try
 		{
 			var db = new DatabaseService();
 			var email = EmailEntry.Text;
@@ -43,7 +43,8 @@ public partial class CadastroUsuarioPage : ContentPage
 		}
 		catch (SqliteException ex) when (ex.Message.Contains("UNIQUE", StringComparison.OrdinalIgnoreCase))
 		{
-			await DisplayAlert("Cadastro", "Este e-mail já está em uso por outro usuário.", "OK");
+			// Could be duplicate email or duplicate name because of UNIQUE constraint on nome and email
+			await DisplayAlert("Cadastro", "Já existe um usuário com este nome ou e-mail.", "OK");
 		}
 	}
 }

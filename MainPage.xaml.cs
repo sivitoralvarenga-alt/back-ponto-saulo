@@ -3,6 +3,8 @@ using Mapsui.Projections;
 using Mapsui.Tiling;
 using Mapsui.UI.Maui;
 using Microsoft.Maui.Devices.Sensors;
+using Microsoft.Maui.Devices;
+using Microsoft.Maui.ApplicationModel;
 using BruTile.Web;
 using BruTile.Predefined;
 using Mapsui.Tiling.Layers;
@@ -72,9 +74,26 @@ public partial class MainPage : ContentPage
 				await RegistrarPonto("Entrada");
 				SemanticScreenReader.Announce(BotaoEntrada.Text);
 			}
-		}
-		
+       }
+
 	}
+
+	private static async Task<bool> EnsureLocationPermissionAsync()
+	{
+		var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+		if (status == PermissionStatus.Granted)
+			return true;
+
+		if (status == PermissionStatus.Denied && DeviceInfo.Platform == DevicePlatform.iOS)
+		{
+			// On iOS once denied you must prompt the user to go to settings
+			await Application.Current?.MainPage?.DisplayAlert("Permissão", "Permissão de localização negada. Habilite em Ajustes.", "OK");
+			return false;
+		}
+
+		status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+		return status == PermissionStatus.Granted;
+       }
 
 	private async void OnBotaoSaidaClicked(object? sender, EventArgs e)
 	{
@@ -106,11 +125,14 @@ public partial class MainPage : ContentPage
 
 	private async void Geolocalizar()
 	{
+     if (!await EnsureLocationPermissionAsync())
+			return;
+
 		var local = await Geolocation.GetLocationAsync(
-   			new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10))
+			new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10))
 		);
 
-		if(local == null)
+		if (local == null)
 		{
 			local = await Geolocation.GetLocationAsync(
 				new GeolocationRequest(GeolocationAccuracy.High)
@@ -154,9 +176,21 @@ public partial class MainPage : ContentPage
 
 		var db = new DatabaseService();
 
-		var local = await Geolocation.GetLocationAsync(
-			new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10))
-		);
+     Location? local = null;
+		if (await EnsureLocationPermissionAsync())
+		{
+			try
+			{
+				local = await Geolocation.GetLocationAsync(
+					new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10))
+				);
+			}
+			catch (PermissionException)
+			{
+				// Permission was denied after request - continue without location
+				local = null;
+			}
+		}
 
 		var agoraUtc = DateTime.UtcNow;
 
@@ -172,5 +206,24 @@ public partial class MainPage : ContentPage
 		};
 
 		db.InsertPonto(registro);
+	}
+
+	private async void OnLogoutClicked(object? sender, EventArgs e)
+	{
+		SessaoUsuario.Limpar();
+		AtualizarRotuloUsuario();
+		// Show login modal
+		if (Application.Current?.MainPage is Shell shell)
+		{
+			await shell.Navigation.PushModalAsync(new NavigationPage(new LoginPage()));
+		}
+	}
+
+	private async void OnMeusRegistrosClicked(object? sender, EventArgs e)
+	{
+		if (Application.Current?.MainPage is Shell shell)
+		{
+			await shell.Navigation.PushAsync(new MeusRegistrosPage());
+		}
 	}
 }

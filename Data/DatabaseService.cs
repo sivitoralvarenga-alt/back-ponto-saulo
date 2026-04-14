@@ -15,6 +15,46 @@ public sealed class DatabaseService
 		DatabasePath = Path.Combine(FileSystem.AppDataDirectory, "ponto.sqlite");
 	}
 
+	public IReadOnlyList<(TimeRecord Record, string UserName)> ListarTodosRegistros()
+	{
+		var builder = new SqliteConnectionStringBuilder { DataSource = DatabasePath };
+		using var connection = new SqliteConnection(builder.ConnectionString);
+		connection.Open();
+
+		using var cmd = connection.CreateCommand();
+		cmd.CommandText =
+			"""
+			SELECT tr.id, tr.userId, tr.timestamp, tr.latitude, tr.longitude, tr.type, tr.authMethod, tr.sucess, u.nome
+			FROM TimeRecords tr
+			JOIN Users u ON tr.userId = u.id
+			ORDER BY tr.timestamp DESC;
+			""";
+
+		var lista = new List<(TimeRecord, string)>();
+		using (var reader = cmd.ExecuteReader())
+		{
+			while (reader.Read())
+			{
+				var record = new TimeRecord
+				{
+					Id = reader.GetInt32(0),
+					UserId = reader.GetInt32(1),
+					Timestamp = reader.GetString(2),
+					Latitude = reader.IsDBNull(3) ? null : reader.GetDouble(3),
+					Longitude = reader.IsDBNull(4) ? null : reader.GetDouble(4),
+					Type = reader.GetString(5),
+					AuthMethod = reader.GetString(6),
+					Sucess = reader.GetInt32(7) != 0
+				};
+
+				var nome = reader.IsDBNull(8) ? string.Empty : reader.GetString(8);
+				lista.Add((record, nome));
+			}
+		}
+
+		return lista;
+	}
+
 	public static string HashPin(string pin)
 	{
 		var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(pin));
@@ -183,6 +223,37 @@ public sealed class DatabaseService
 		}
 	}
 
+	public User? ObterUsuarioPorNome(string nome)
+	{
+		var builder = new SqliteConnectionStringBuilder { DataSource = DatabasePath };
+		using var connection = new SqliteConnection(builder.ConnectionString);
+		connection.Open();
+
+		using var cmd = connection.CreateCommand();
+		cmd.CommandText =
+			"""
+			SELECT id, nome, email, secreteCodeHash, facedata, createdAt
+			FROM Users
+			WHERE nome = $nome
+			LIMIT 1;
+			""";
+		cmd.Parameters.AddWithValue("$nome", nome.Trim());
+
+		using var reader = cmd.ExecuteReader();
+		if (!reader.Read())
+			return null;
+
+		return new User
+		{
+			Id = reader.GetInt32(0),
+			Nome = reader.GetString(1),
+			Email = reader.IsDBNull(2) ? null : reader.GetString(2),
+			SecreteCodeHash = reader.GetString(3),
+			Facedata = reader.IsDBNull(4) ? null : reader.GetString(4),
+			CreatedAt = reader.GetString(5)
+		};
+	}
+
 	public bool ValidarPin(int userId, string pin)
 	{
 		var usuario = ObterUsuario(userId);
@@ -233,17 +304,14 @@ public sealed class DatabaseService
 internal static class SqlSchema
 {
 	/// <summary>Users deve existir antes de TimeRecords (FK).</summary>
-	internal const string UsersTable =
-		"""
-		CREATE TABLE IF NOT EXISTS Users (
-		    id INTEGER PRIMARY KEY AUTOINCREMENT,
-		    nome TEXT NOT NULL,
-		    email TEXT UNIQUE,
-		    secreteCodeHash TEXT NOT NULL,
-		    facedata TEXT,
-		    createdAt TEXT NOT NULL
-		);
-		""";
+  internal const string UsersTable = @"CREATE TABLE IF NOT EXISTS Users (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		nome TEXT NOT NULL UNIQUE,
+		email TEXT UNIQUE,
+		secreteCodeHash TEXT NOT NULL,
+		facedata TEXT,
+		createdAt TEXT NOT NULL
+	);";
 
 	internal const string TimeRecordsTable =
 		"""

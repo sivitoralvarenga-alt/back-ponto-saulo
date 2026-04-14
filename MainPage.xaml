@@ -14,10 +14,18 @@
                 Style="{StaticResource Headline}"
                 SemanticProperties.HeadingLevel="Level1" />
 
-            <Label
-                x:Name="LabelUsuarioAtual"
-                Text="Nenhum usuário selecionado — use a aba Usuários."
-                Style="{StaticResource SubHeadline}" />
+            <VerticalStackLayout HorizontalOptions="Fill" VerticalOptions="Center" Spacing="8">
+                <Label
+                    x:Name="LabelUsuarioAtual"
+                    Text="Nenhum usuário selecionado — use a aba Usuários."
+                    Style="{StaticResource SubHeadline}"
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center" />
+                <Button
+                    Text="Deslogar"
+                    Clicked="OnLogoutClicked"
+                    HorizontalOptions="Center" />
+            </VerticalStackLayout>
 
             <Label
                 Text="Entrada e saída de ponto"
@@ -70,6 +78,11 @@
             </HorizontalStackLayout>
 
             <mapsui:MapControl x:Name="ControleMapa" HeightRequest="300" WidthRequest="300"/>
+
+            <Button
+                Text="Meus registros"
+                Clicked="OnMeusRegistrosClicked"
+                HorizontalOptions="Center" />
         </VerticalStackLayout>
     </ScrollView>
 

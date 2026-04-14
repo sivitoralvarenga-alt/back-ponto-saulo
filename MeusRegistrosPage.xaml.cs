@@ -27,6 +27,14 @@ public partial class MeusRegistrosPage : ContentPage
 		Carregar();
 	}
 
+	private async void OnVoltarClicked(object? sender, EventArgs e)
+	{
+		if (Application.Current?.MainPage is Shell shell)
+		{
+			await shell.Navigation.PopAsync();
+		}
+	}
+
 	private void Carregar()
 	{
 		var id = SessaoUsuario.ObterId();
