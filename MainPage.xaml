@@ -9,10 +9,6 @@
             Padding="30,0"
             Spacing="25">
 
-            <Label
-                Text="Registro de ponto"
-                Style="{StaticResource Headline}"
-                SemanticProperties.HeadingLevel="Level1" />
 
             <VerticalStackLayout HorizontalOptions="Fill" VerticalOptions="Center" Spacing="8">
                 <Label
@@ -21,6 +17,22 @@
                     Style="{StaticResource SubHeadline}"
                     HorizontalOptions="Center"
                     HorizontalTextAlignment="Center" />
+
+            <Frame
+                WidthRequest="100"
+                HeightRequest="100"
+                CornerRadius="50"
+                Padding="0"
+                IsClippedToBounds="True"
+                HasShadow="False"
+                HorizontalOptions="Center">
+
+                <Image
+                    x:Name="ImagemUsuario"
+                    Aspect="AspectFill" />
+
+            </Frame>
+
                 <Button
                     Text="Deslogar"
                     Clicked="OnLogoutClicked"

@@ -31,6 +31,7 @@ public partial class MainPage : ContentPage
 	{
 		base.OnAppearing();
 		AtualizarRotuloUsuario();
+
 	}
 
 	private void AtualizarRotuloUsuario()
@@ -47,19 +48,31 @@ public partial class MainPage : ContentPage
 		LabelUsuarioAtual.Text = u == null
 			? "Usuário salvo não encontrado. Escolha outro na aba Usuários."
 			: $"Registrando como: {u.Nome}";
+
+		ImagemUsuario.Source = ConverterBase64ParaImagem(u.Facedata);
 	}
+
+
+	public ImageSource ConverterBase64ParaImagem(string? base64)
+	{
+
+		byte[] bytes = Convert.FromBase64String(base64);
+
+		return ImageSource.FromStream(() => new MemoryStream(bytes));
+	}
+	
 
 	private async void OnBotaoEntradaClicked(object? sender, EventArgs e)
 	{
 		var tela = Application.Current?.Windows[0]?.Page;
 		var _clicado = false;
 
-		if(BotaoEntrada.Background is SolidColorBrush brush && brush.Color == Colors.DimGray)
+		if (BotaoEntrada.Background is SolidColorBrush brush && brush.Color == Colors.DimGray)
 		{
 			_clicado = true;
 		}
-		
-		if(tela != null && !_clicado)
+
+		if (tela != null && !_clicado)
 		{
 			bool resposta = await tela.DisplayAlertAsync(
 				"Confirmação",
@@ -70,11 +83,18 @@ public partial class MainPage : ContentPage
 
 			if (resposta)
 			{
-				BotaoEntrada.Background= Colors.DimGray;
+				BotaoEntrada.Background = Colors.DimGray;
 				await RegistrarPonto("Entrada");
 				SemanticScreenReader.Announce(BotaoEntrada.Text);
+
+				if (Sms.Default.IsComposeSupported)
+				{
+					var dia = DateTime.Now;
+					var mensagem = new SmsMessage($"Ponto feito no dia {dia}", "+5542988734520");
+					await Sms.Default.ComposeAsync(mensagem);
+				}
 			}
-       }
+		}
 
 	}
 

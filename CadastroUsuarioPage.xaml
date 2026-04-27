@@ -16,6 +16,43 @@
             <Label Text="Confirmar PIN" />
             <Entry x:Name="ConfirmarPinEntry" Placeholder="Repita o PIN" IsPassword="True" Keyboard="Numeric" />
 
+            <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
+
+                <Frame 
+                    WidthRequest="120"
+                    HeightRequest="120"
+                    CornerRadius="60"
+                    BackgroundColor="#E0E0E0"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    HasShadow="False"
+                    Padding="0">
+
+                    <Grid>
+                
+                        <Image x:Name="FotoPreview"
+                            Aspect="AspectFill"
+                            IsVisible="False" />
+
+                        <Label x:Name="IconeCamera"
+                            Text="📷"
+                            FontSize="40"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
+                    </Grid>
+
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="TirarFoto" />
+                    </Frame.GestureRecognizers>
+
+                </Frame>
+
+                <Label Text="Toque para adicionar foto"
+                    FontSize="12"
+                    HorizontalOptions="Center" />
+
+            </VerticalStackLayout>
+
             <Button Text="Salvar" Clicked="OnSalvarClicked" />
         </VerticalStackLayout>
     </ScrollView>

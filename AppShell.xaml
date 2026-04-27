@@ -18,14 +18,4 @@
         Title="Meus registros"
         ContentTemplate="{DataTemplate local:MeusRegistrosPage}" />
 
-    <ShellContent
-        Title="Todos registros"
-        ContentTemplate="{DataTemplate local:TodosRegistrosPage}" />
-    
-    <!--<TabBar>
-        <Tab Title="calendario" Icon="📅">
-
-        </Tab>
-    </TabBar>-->
-
 </Shell>

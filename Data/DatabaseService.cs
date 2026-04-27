@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Data.Sqlite;
 using PontoSaulo.Models;
+using static System.DBNull;
 
 namespace PontoSaulo.Data;
 
@@ -191,7 +192,7 @@ public sealed class DatabaseService
 		};
 	}
 
-	public int CriarUsuario(string nome, string? email, string pin)
+	public int CriarUsuario(string nome, string? email, string pin, string? faceData)
 	{
 		var agora = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
 		var hash = HashPin(pin);
@@ -205,12 +206,13 @@ public sealed class DatabaseService
 			cmd.CommandText =
 				"""
 				INSERT INTO Users (nome, email, secreteCodeHash, facedata, createdAt)
-				VALUES ($nome, $email, $hash, NULL, $createdAt);
+				VALUES ($nome, $email, $hash, $face, $createdAt);
 				""";
 
 			cmd.Parameters.AddWithValue("$nome", nome.Trim());
 			cmd.Parameters.AddWithValue("$email", string.IsNullOrWhiteSpace(email) ? DBNull.Value : email.Trim());
 			cmd.Parameters.AddWithValue("$hash", hash);
+			cmd.Parameters.AddWithValue("$face", (object?)faceData ?? DBNull.Value);
 			cmd.Parameters.AddWithValue("$createdAt", agora);
 			cmd.ExecuteNonQuery();
 		}
