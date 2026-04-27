@@ -94,6 +94,21 @@ public sealed class DatabaseService
 			cmd.CommandText = SqlSchema.TimeRecordsTable;
 			cmd.ExecuteNonQuery();
 		}
+
+		MigrateUsersAddTelefoneIfMissing(connection);
+	}
+
+	private static void MigrateUsersAddTelefoneIfMissing(SqliteConnection connection)
+	{
+		using var check = connection.CreateCommand();
+		check.CommandText = "SELECT COUNT(*) FROM pragma_table_info('Users') WHERE name = 'telefone';";
+		var exists = Convert.ToInt64(check.ExecuteScalar(), CultureInfo.InvariantCulture) > 0;
+		if (exists)
+			return;
+
+		using var alter = connection.CreateCommand();
+		alter.CommandText = "ALTER TABLE Users ADD COLUMN telefone TEXT;";
+		alter.ExecuteNonQuery();
 	}
 
 	public void InsertPonto(TimeRecord record)
@@ -136,7 +151,7 @@ public sealed class DatabaseService
 		using var cmd = connection.CreateCommand();
 		cmd.CommandText =
 			"""
-			SELECT id, nome, email, secreteCodeHash, facedata, createdAt
+			SELECT id, nome, email, telefone, secreteCodeHash, facedata, createdAt
 			FROM Users
 			ORDER BY nome COLLATE NOCASE;
 			""";
@@ -145,17 +160,7 @@ public sealed class DatabaseService
 		using (var reader = cmd.ExecuteReader())
 		{
 			while (reader.Read())
-			{
-				lista.Add(new User
-				{
-					Id = reader.GetInt32(0),
-					Nome = reader.GetString(1),
-					Email = reader.IsDBNull(2) ? null : reader.GetString(2),
-					SecreteCodeHash = reader.GetString(3),
-					Facedata = reader.IsDBNull(4) ? null : reader.GetString(4),
-					CreatedAt = reader.GetString(5)
-				});
-			}
+				lista.Add(MapUser(reader));
 		}
 
 		return lista;
@@ -170,7 +175,7 @@ public sealed class DatabaseService
 		using var cmd = connection.CreateCommand();
 		cmd.CommandText =
 			"""
-			SELECT id, nome, email, secreteCodeHash, facedata, createdAt
+			SELECT id, nome, email, telefone, secreteCodeHash, facedata, createdAt
 			FROM Users
 			WHERE id = $id
 			LIMIT 1;
@@ -181,18 +186,10 @@ public sealed class DatabaseService
 		if (!reader.Read())
 			return null;
 
-		return new User
-		{
-			Id = reader.GetInt32(0),
-			Nome = reader.GetString(1),
-			Email = reader.IsDBNull(2) ? null : reader.GetString(2),
-			SecreteCodeHash = reader.GetString(3),
-			Facedata = reader.IsDBNull(4) ? null : reader.GetString(4),
-			CreatedAt = reader.GetString(5)
-		};
+		return MapUser(reader);
 	}
 
-	public int CriarUsuario(string nome, string? email, string pin, string? faceData)
+	public int CriarUsuario(string nome, string? email, string? telefone, string pin, string? faceData)
 	{
 		var agora = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
 		var hash = HashPin(pin);
@@ -205,12 +202,13 @@ public sealed class DatabaseService
 		{
 			cmd.CommandText =
 				"""
-				INSERT INTO Users (nome, email, secreteCodeHash, facedata, createdAt)
-				VALUES ($nome, $email, $hash, $face, $createdAt);
+				INSERT INTO Users (nome, email, telefone, secreteCodeHash, facedata, createdAt)
+				VALUES ($nome, $email, $telefone, $hash, $face, $createdAt);
 				""";
 
 			cmd.Parameters.AddWithValue("$nome", nome.Trim());
 			cmd.Parameters.AddWithValue("$email", string.IsNullOrWhiteSpace(email) ? DBNull.Value : email.Trim());
+			cmd.Parameters.AddWithValue("$telefone", string.IsNullOrWhiteSpace(telefone) ? DBNull.Value : telefone.Trim());
 			cmd.Parameters.AddWithValue("$hash", hash);
 			cmd.Parameters.AddWithValue("$face", (object?)faceData ?? DBNull.Value);
 			cmd.Parameters.AddWithValue("$createdAt", agora);
@@ -234,7 +232,7 @@ public sealed class DatabaseService
 		using var cmd = connection.CreateCommand();
 		cmd.CommandText =
 			"""
-			SELECT id, nome, email, secreteCodeHash, facedata, createdAt
+			SELECT id, nome, email, telefone, secreteCodeHash, facedata, createdAt
 			FROM Users
 			WHERE nome = $nome
 			LIMIT 1;
@@ -245,14 +243,21 @@ public sealed class DatabaseService
 		if (!reader.Read())
 			return null;
 
+		return MapUser(reader);
+	}
+
+	private static User MapUser(SqliteDataReader reader)
+	{
+		var ordTelefone = reader.GetOrdinal("telefone");
 		return new User
 		{
-			Id = reader.GetInt32(0),
-			Nome = reader.GetString(1),
-			Email = reader.IsDBNull(2) ? null : reader.GetString(2),
-			SecreteCodeHash = reader.GetString(3),
-			Facedata = reader.IsDBNull(4) ? null : reader.GetString(4),
-			CreatedAt = reader.GetString(5)
+			Id = reader.GetInt32(reader.GetOrdinal("id")),
+			Nome = reader.GetString(reader.GetOrdinal("nome")),
+			Email = reader.IsDBNull(reader.GetOrdinal("email")) ? null : reader.GetString(reader.GetOrdinal("email")),
+			Telefone = reader.IsDBNull(ordTelefone) ? null : reader.GetString(ordTelefone),
+			SecreteCodeHash = reader.GetString(reader.GetOrdinal("secreteCodeHash")),
+			Facedata = reader.IsDBNull(reader.GetOrdinal("facedata")) ? null : reader.GetString(reader.GetOrdinal("facedata")),
+			CreatedAt = reader.GetString(reader.GetOrdinal("createdAt"))
 		};
 	}
 
@@ -310,6 +315,7 @@ internal static class SqlSchema
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		nome TEXT NOT NULL UNIQUE,
 		email TEXT UNIQUE,
+		telefone TEXT,
 		secreteCodeHash TEXT NOT NULL,
 		facedata TEXT,
 		createdAt TEXT NOT NULL

@@ -25,6 +25,7 @@
                         <VerticalStackLayout Padding="12,8" Spacing="4">
                             <Label Text="{Binding Nome}" FontSize="18" />
                             <Label Text="{Binding Email}" FontSize="14" TextColor="{AppThemeBinding Light=#666, Dark=#AAA}" />
+                            <Label Text="{Binding Telefone}" FontSize="13" TextColor="{AppThemeBinding Light=#888, Dark=#888}" />
                         </VerticalStackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

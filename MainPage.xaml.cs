@@ -5,9 +5,6 @@ using Mapsui.UI.Maui;
 using Microsoft.Maui.Devices.Sensors;
 using Microsoft.Maui.Devices;
 using Microsoft.Maui.ApplicationModel;
-using BruTile.Web;
-using BruTile.Predefined;
-using Mapsui.Tiling.Layers;
 using PontoSaulo.Data;
 using PontoSaulo.Models;
 
@@ -40,27 +37,42 @@ public partial class MainPage : ContentPage
 		if (!id.HasValue)
 		{
 			LabelUsuarioAtual.Text = "Nenhum usuário selecionado — use a aba Usuários.";
+			ImagemUsuario.Source = null;
+			ImagemUsuario.IsVisible = false;
 			return;
 		}
 
 		var db = new DatabaseService();
 		var u = db.ObterUsuario(id.Value);
-		LabelUsuarioAtual.Text = u == null
-			? "Usuário salvo não encontrado. Escolha outro na aba Usuários."
-			: $"Registrando como: {u.Nome}";
+		if (u == null)
+		{
+			LabelUsuarioAtual.Text = "Usuário salvo não encontrado. Escolha outro na aba Usuários.";
+			ImagemUsuario.Source = null;
+			ImagemUsuario.IsVisible = false;
+			return;
+		}
 
-		ImagemUsuario.Source = ConverterBase64ParaImagem(u.Facedata);
+		LabelUsuarioAtual.Text = $"Registrando como: {u.Nome}";
+		var img = ImagemDeBase64(u.Facedata);
+		ImagemUsuario.Source = img;
+		ImagemUsuario.IsVisible = img != null;
 	}
 
-
-	public ImageSource ConverterBase64ParaImagem(string? base64)
+	private static ImageSource? ImagemDeBase64(string? base64)
 	{
-
-		byte[] bytes = Convert.FromBase64String(base64);
-
-		return ImageSource.FromStream(() => new MemoryStream(bytes));
+		if (string.IsNullOrWhiteSpace(base64))
+			return null;
+		try
+		{
+			var bytes = Convert.FromBase64String(base64.Trim());
+			return ImageSource.FromStream(() => new MemoryStream(bytes));
+		}
+		catch (FormatException)
+		{
+			return null;
+		}
 	}
-	
+
 
 	private async void OnBotaoEntradaClicked(object? sender, EventArgs e)
 	{
@@ -86,13 +98,6 @@ public partial class MainPage : ContentPage
 				BotaoEntrada.Background = Colors.DimGray;
 				await RegistrarPonto("Entrada");
 				SemanticScreenReader.Announce(BotaoEntrada.Text);
-
-				if (Sms.Default.IsComposeSupported)
-				{
-					var dia = DateTime.Now;
-					var mensagem = new SmsMessage($"Ponto feito no dia {dia}", "+5542988734520");
-					await Sms.Default.ComposeAsync(mensagem);
-				}
 			}
 		}
 
@@ -107,7 +112,8 @@ public partial class MainPage : ContentPage
 		if (status == PermissionStatus.Denied && DeviceInfo.Platform == DevicePlatform.iOS)
 		{
 			// On iOS once denied you must prompt the user to go to settings
-			await Application.Current?.MainPage?.DisplayAlert("Permissão", "Permissão de localização negada. Habilite em Ajustes.", "OK");
+			if (Application.Current?.MainPage is Page pagina)
+				await pagina.DisplayAlert("Permissão", "Permissão de localização negada. Habilite em Ajustes.", "OK");
 			return false;
 		}
 
@@ -145,41 +151,54 @@ public partial class MainPage : ContentPage
 
 	private async void Geolocalizar()
 	{
-     if (!await EnsureLocationPermissionAsync())
-			return;
-
-		var local = await Geolocation.GetLocationAsync(
-			new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10))
-		);
-
-		if (local == null)
+		try
 		{
-			local = await Geolocation.GetLocationAsync(
-				new GeolocationRequest(GeolocationAccuracy.High)
+			if (!await EnsureLocationPermissionAsync())
+				return;
+
+			var local = await Geolocation.GetLocationAsync(
+				new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10))
 			);
+
+			if (local == null)
+			{
+				local = await Geolocation.GetLocationAsync(
+					new GeolocationRequest(GeolocationAccuracy.High)
+				);
+			}
+
+			if (local == null)
+				return;
+
+			var posicao = SphericalMercator.FromLonLat(
+				local.Longitude,
+				local.Latitude
+			);
+
+			var mapa = new Mapsui.Map();
+
+			mapa.Layers.Add(Mapsui.Tiling.OpenStreetMap.CreateTileLayer());
+
+			await Task.Delay(500);
+
+			ControleMapa.Map = mapa;
+
+			ControleMapa.Map.Widgets.Clear();
+			ControleMapa.Map.Navigator.CenterOn(posicao.x, posicao.y);
+			ControleMapa.Map.Navigator.ZoomTo(5);
 		}
-
-		if (local == null)
-			return;
-
-		var posicao = SphericalMercator.FromLonLat(
-			local.Longitude,
-			local.Latitude
-		);
-
-		var mapa = new Mapsui.Map();
-
-		mapa.Layers.Add(Mapsui.Tiling.OpenStreetMap.CreateTileLayer());
-
-		await Task.Delay(500);
-
-		ControleMapa.Map = mapa;
-
-		ControleMapa.Map.Widgets.Clear();
-		ControleMapa.Map.Navigator.CenterOn(posicao.x, posicao.y);
-		ControleMapa.Map.Navigator.ZoomTo(5);
-
-		
+		catch (FeatureNotSupportedException)
+		{
+			// Geolocalização indisponível neste dispositivo.
+		}
+		catch (PermissionException)
+		{
+			// Permissão negada após fluxo anterior.
+		}
+		catch (Exception)
+		{
+			// Timeout de GPS, mapa ou hardware — app continua sem mapa.
+		}
 	} 
 
 	private async Task RegistrarPonto(string tipo)
@@ -226,6 +245,22 @@ public partial class MainPage : ContentPage
 		};
 
 		db.InsertPonto(registro);
+
+		var usuario = db.ObterUsuario(userId.Value);
+		var telefone = usuario?.Telefone?.Trim();
+		if (!string.IsNullOrEmpty(telefone) && Sms.Default.IsComposeSupported)
+		{
+			var quando = DateTime.Now;
+			var texto = $"Confirmacao de ponto batido em {quando:dd/MM/yyyy} {quando:HH:mm}";
+			try
+			{
+				await Sms.Default.ComposeAsync(new SmsMessage(texto, telefone));
+			}
+			catch
+			{
+				// Falha ao abrir app de SMS ou envio cancelado — ponto já foi salvo.
+			}
+		}
 	}
 
 	private async void OnLogoutClicked(object? sender, EventArgs e)

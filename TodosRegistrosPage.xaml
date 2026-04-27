@@ -25,7 +25,7 @@
                         StrokeThickness="1">
                         <VerticalStackLayout Spacing="6">
                             <Label
-                                Text="{Binding UserName} - {Binding Record.Type}"
+                                Text="{Binding TituloResumo}"
                                 FontSize="18"
                                 FontAttributes="Bold">
                                 <Label.Triggers>

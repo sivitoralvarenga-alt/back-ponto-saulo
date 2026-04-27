@@ -18,4 +18,8 @@
         Title="Meus registros"
         ContentTemplate="{DataTemplate local:MeusRegistrosPage}" />
 
+    <ShellContent
+        Title="Todos os registros"
+        ContentTemplate="{DataTemplate local:TodosRegistrosPage}" />
+
 </Shell>

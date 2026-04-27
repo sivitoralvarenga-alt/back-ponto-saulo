@@ -69,7 +69,13 @@ public partial class CadastroUsuarioPage : ContentPage
 		{
 			var db = new DatabaseService();
 			var email = EmailEntry.Text;
-			var id = db.CriarUsuario(nome, string.IsNullOrWhiteSpace(email) ? null : email, pin, _fotoBase64);
+			var telefone = TelefoneEntry.Text;
+			var id = db.CriarUsuario(
+				nome,
+				string.IsNullOrWhiteSpace(email) ? null : email,
+				string.IsNullOrWhiteSpace(telefone) ? null : telefone,
+				pin,
+				_fotoBase64);
 			SessaoUsuario.DefinirAtual(id);
 			await DisplayAlert("Sucesso", "Usuário cadastrado e definido como ativo.", "OK");
 			await Navigation.PopAsync();

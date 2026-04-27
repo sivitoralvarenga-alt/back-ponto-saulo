@@ -11,6 +11,8 @@
             <Entry x:Name="NomeEntry" Placeholder="Nome" />
             <Label Text="E-mail (opcional)" />
             <Entry x:Name="EmailEntry" Placeholder="email@exemplo.com" Keyboard="Email" />
+            <Label Text="Celular para SMS de confirmação (opcional)" />
+            <Entry x:Name="TelefoneEntry" Placeholder="Ex.: +5541999998888" Keyboard="Telephone" />
             <Label Text="PIN (mínimo 4 dígitos)" />
             <Entry x:Name="PinEntry" Placeholder="PIN" IsPassword="True" Keyboard="Numeric" />
             <Label Text="Confirmar PIN" />

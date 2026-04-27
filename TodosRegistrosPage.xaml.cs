@@ -9,6 +9,9 @@ public sealed class TodosRegistrosViewItem
 	public string UserName { get; init; } = "";
 	public TimeRecord Record { get; init; } = new TimeRecord();
 	public string Localizacao { get; init; } = "";
+
+	/// <summary>Texto único para binding (MAUI não concatena dois {Binding} no mesmo atributo).</summary>
+	public string TituloResumo => $"{UserName} — {Record.Type}";
 }
 
 public partial class TodosRegistrosPage : ContentPage
@@ -28,10 +31,8 @@ public partial class TodosRegistrosPage : ContentPage
 
 	private async void OnVoltarClicked(object? sender, EventArgs e)
 	{
-		if (Application.Current?.MainPage is Shell shell)
-		{
-			await shell.Navigation.PopAsync();
-		}
+		if (Navigation.NavigationStack.Count > 1)
+			await Navigation.PopAsync();
 	}
 
 	private void Carregar()

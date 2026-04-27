@@ -29,10 +29,8 @@ public partial class MeusRegistrosPage : ContentPage
 
 	private async void OnVoltarClicked(object? sender, EventArgs e)
 	{
-		if (Application.Current?.MainPage is Shell shell)
-		{
-			await shell.Navigation.PopAsync();
-		}
+		if (Navigation.NavigationStack.Count > 1)
+			await Navigation.PopAsync();
 	}
 
 	private void Carregar()
