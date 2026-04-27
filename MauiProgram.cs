@@ -1,8 +1,7 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using PontoSaulo.Data;
+﻿using Microsoft.Extensions.Logging;
+using SkiaSharp.Views.Maui.Controls.Hosting;
 
-namespace PontoSaulo;
+namespace MyMauiApp;
 
 public static class MauiProgram
 {
@@ -11,18 +10,22 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
-			.ConfigureFonts(_ => { });
-
-		builder.Services.AddSingleton<DatabaseService>();
-		builder.Services.AddTransient<MainPage>();
-		builder.Services.AddSingleton<AppShell>();
+			.ConfigureFonts(fonts =>
+			{
+				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+			})
+			.UseSkiaSharp();
 
 #if DEBUG
 		builder.Logging.AddDebug();
 #endif
 
 		var app = builder.Build();
-		app.Services.GetRequiredService<DatabaseService>().Initialize();
+
+		var db = new PontoSaulo.Data.DatabaseService();
+		db.Initialize();
+
 		return app;
 	}
 }

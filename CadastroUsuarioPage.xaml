@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MyMauiApp.CadastroUsuarioPage"
+             Title="Novo usuário">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16">
+            <Label Text="Cadastro" Style="{StaticResource Headline}" />
+            <Label Text="Nome completo" />
+            <Entry x:Name="NomeEntry" Placeholder="Nome" />
+            <Label Text="E-mail (opcional)" />
+            <Entry x:Name="EmailEntry" Placeholder="email@exemplo.com" Keyboard="Email" />
+            <Label Text="PIN (mínimo 4 dígitos)" />
+            <Entry x:Name="PinEntry" Placeholder="PIN" IsPassword="True" Keyboard="Numeric" />
+            <Label Text="Confirmar PIN" />
+            <Entry x:Name="ConfirmarPinEntry" Placeholder="Repita o PIN" IsPassword="True" Keyboard="Numeric" />
+
+            <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
+
+                <Frame 
+                    WidthRequest="120"
+                    HeightRequest="120"
+                    CornerRadius="60"
+                    BackgroundColor="#E0E0E0"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    HasShadow="False"
+                    Padding="0">
+
+                    <Grid>
+                
+                        <Image x:Name="FotoPreview"
+                            Aspect="AspectFill"
+                            IsVisible="False" />
+
+                        <Label x:Name="IconeCamera"
+                            Text="📷"
+                            FontSize="40"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
+                    </Grid>
+
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="TirarFoto" />
+                    </Frame.GestureRecognizers>
+
+                </Frame>
+
+                <Label Text="Toque para adicionar foto"
+                    FontSize="12"
+                    HorizontalOptions="Center" />
+
+            </VerticalStackLayout>
+
+            <Button Text="Salvar" Clicked="OnSalvarClicked" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

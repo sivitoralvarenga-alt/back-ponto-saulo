@@ -1,14 +1,101 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="PontoSaulo.MainPage"
-             Title="Ponto">
+             xmlns:mapsui="clr-namespace:Mapsui.UI.Maui;assembly=Mapsui.UI.Maui"
+             x:Class="MyMauiApp.MainPage">
 
-	<ScrollView>
-		<VerticalStackLayout Padding="24" Spacing="12">
-			<Label Text="SQLite" Style="{StaticResource Headline}" />
-			<Label x:Name="StatusLabel" Text="Banco pronto." />
-			<Label x:Name="PathLabel" FontSize="12" TextColor="{StaticResource Gray500}" />
-		</VerticalStackLayout>
-	</ScrollView>
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="30,0"
+            Spacing="25">
+
+
+            <VerticalStackLayout HorizontalOptions="Fill" VerticalOptions="Center" Spacing="8">
+                <Label
+                    x:Name="LabelUsuarioAtual"
+                    Text="Nenhum usuário selecionado — use a aba Usuários."
+                    Style="{StaticResource SubHeadline}"
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center" />
+
+            <Frame
+                WidthRequest="100"
+                HeightRequest="100"
+                CornerRadius="50"
+                Padding="0"
+                IsClippedToBounds="True"
+                HasShadow="False"
+                HorizontalOptions="Center">
+
+                <Image
+                    x:Name="ImagemUsuario"
+                    Aspect="AspectFill" />
+
+            </Frame>
+
+                <Button
+                    Text="Deslogar"
+                    Clicked="OnLogoutClicked"
+                    HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <Label
+                Text="Entrada e saída de ponto"
+                Style="{StaticResource SubHeadline}"
+                SemanticProperties.HeadingLevel="Level2"
+                SemanticProperties.Description="entrada e saida" />
+
+            <BoxView HeightRequest="1"
+                Color="Gray"
+                HorizontalOptions="Fill"/>
+
+            <Label
+                Text="{Binding Agora, StringFormat='{}{0:HH:mm:ss}'}"
+                x:Name="relogio"
+                Style="{StaticResource Time}"
+                SemanticProperties.HeadingLevel="Level1"
+                />
+
+            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+            
+            <Label
+                Text="{Binding Agora, StringFormat='{}{0:dddd - dd, MMMM}'}"
+                x:Name="diaSemana"
+                Style="{StaticResource SubHeadline}"
+                SemanticProperties.HeadingLevel="Level2"
+                />
+
+        
+
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+
+            <Button
+                x:Name="BotaoEntrada"
+                Text="Registrar Entrada" 
+                SemanticProperties.Hint="Botao Ponto"
+                Clicked="OnBotaoEntradaClicked"
+                HorizontalOptions="Fill"
+                Background="Green" />
+
+            <Button
+                x:Name="BotaoSaida"
+                Text="Registrar Saida" 
+                SemanticProperties.Hint="Botao Ponto"
+                Clicked="OnBotaoSaidaClicked"
+                HorizontalOptions="Fill"
+                Background="Red" />
+
+            </HorizontalStackLayout>
+
+            <mapsui:MapControl x:Name="ControleMapa" HeightRequest="300" WidthRequest="300"/>
+
+            <Button
+                Text="Meus registros"
+                Clicked="OnMeusRegistrosClicked"
+                HorizontalOptions="Center" />
+        </VerticalStackLayout>
+    </ScrollView>
+
 </ContentPage>

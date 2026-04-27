@@ -1,6 +1,6 @@
-using Foundation;
+﻿using Foundation;
 
-namespace PontoSaulo;
+namespace MyMauiApp;
 
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate

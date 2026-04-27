@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MyMauiApp.MeusRegistrosPage"
+             Title="Meus registros">
+
+    <Grid RowDefinitions="Auto,*" Padding="20" RowSpacing="12">
+        <VerticalStackLayout Grid.Row="0" Spacing="8">
+            <Label Text="Histórico de ponto" Style="{StaticResource Headline}" />
+            <HorizontalStackLayout Spacing="12">
+                <Button Text="Voltar" Clicked="OnVoltarClicked" />
+                <Label x:Name="LabelContexto" Style="{StaticResource SubHeadline}" HorizontalOptions="StartAndExpand" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+
+        <CollectionView
+            Grid.Row="1"
+            x:Name="ListaRegistros"
+            EmptyView="Nenhum registro ainda.">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border
+                        Padding="14,12"
+                        Margin="0,0,0,10"
+                        StrokeThickness="1">
+                        <VerticalStackLayout Spacing="6">
+                            <Label
+                                Text="{Binding Tipo}"
+                                FontSize="18"
+                                FontAttributes="Bold">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Tipo}" Value="Entrada">
+                                        <Setter Property="TextColor" Value="Green" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Tipo}" Value="Saída">
+                                        <Setter Property="TextColor" Value="Red" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Tipo}" Value="Saida">
+                                        <Setter Property="TextColor" Value="Red" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Label
+                                Text="{Binding DataHora}"
+                                FontSize="15" />
+                            <Label
+                                Text="{Binding Localizacao}"
+                                FontSize="13"
+                                TextColor="{AppThemeBinding Light=#666, Dark=#AAA}"
+                                IsVisible="{Binding TemLocalizacao}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

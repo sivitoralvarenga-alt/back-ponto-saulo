@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MyMauiApp.TodosRegistrosPage"
+             Title="Todos os registros">
+
+    <Grid RowDefinitions="Auto,*" Padding="20" RowSpacing="12">
+        <VerticalStackLayout Grid.Row="0" Spacing="8">
+            <Label Text="Registros (todos usuários)" Style="{StaticResource Headline}" />
+            <HorizontalStackLayout Spacing="12">
+                <Button Text="Voltar" Clicked="OnVoltarClicked" />
+                <Label x:Name="LabelContexto" Style="{StaticResource SubHeadline}" HorizontalOptions="StartAndExpand" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+
+        <CollectionView
+            Grid.Row="1"
+            x:Name="ListaRegistros"
+            EmptyView="Nenhum registro ainda.">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border
+                        Padding="14,12"
+                        Margin="0,0,0,10"
+                        StrokeThickness="1">
+                        <VerticalStackLayout Spacing="6">
+                            <Label
+                                Text="{Binding UserName} - {Binding Record.Type}"
+                                FontSize="18"
+                                FontAttributes="Bold">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Record.Type}" Value="Entrada">
+                                        <Setter Property="TextColor" Value="Green" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Record.Type}" Value="Saída">
+                                        <Setter Property="TextColor" Value="Red" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Record.Type}" Value="Saida">
+                                        <Setter Property="TextColor" Value="Red" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Label
+                                Text="{Binding Record.Timestamp}"
+                                FontSize="15" />
+                            <Label
+                                Text="{Binding Localizacao}"
+                                FontSize="13"
+                                TextColor="{AppThemeBinding Light=#666, Dark=#AAA}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>
