@@ -12,6 +12,7 @@ public partial class CadastroUsuarioPage : ContentPage
 
 	private string? _fotoBase64;
 
+
 	private async void TirarFoto(object? sender, EventArgs e)
 	{
 		try

@@ -2,58 +2,120 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MyMauiApp.CadastroUsuarioPage"
-             Title="Novo usuário">
+             Title="Cadastrar"
+             BackgroundColor="White">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="24" Spacing="16">
-            <Label Text="Cadastro" Style="{StaticResource Headline}" />
-            <Label Text="Nome completo" />
-            <Entry x:Name="NomeEntry" Placeholder="Nome" />
-            <Label Text="E-mail (opcional)" />
-            <Entry x:Name="EmailEntry" Placeholder="email@exemplo.com" Keyboard="Email" />
-            <Label Text="PIN (mínimo 4 dígitos)" />
-            <Entry x:Name="PinEntry" Placeholder="PIN" IsPassword="True" Keyboard="Numeric" />
-            <Label Text="Confirmar PIN" />
-            <Entry x:Name="ConfirmarPinEntry" Placeholder="Repita o PIN" IsPassword="True" Keyboard="Numeric" />
+    <Grid RowDefinitions="120,*,120">
 
-            <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
+        <Grid Grid.Row="0" BackgroundColor="#2F4DA3">
+            <Label 
+                Text="Cadastro"
+                TextColor="White"
+                FontSize="30"
+                FontAttributes="Bold"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"/>
+        </Grid>
 
-                <Frame 
-                    WidthRequest="120"
-                    HeightRequest="120"
-                    CornerRadius="60"
-                    BackgroundColor="#E0E0E0"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center"
-                    HasShadow="False"
-                    Padding="0">
+        <Grid Grid.Row="1">
 
-                    <Grid>
-                
-                        <Image x:Name="FotoPreview"
-                            Aspect="AspectFill"
-                            IsVisible="False" />
+            <Frame
+                CornerRadius="25"
+                Padding="25"
+                BackgroundColor="White"
+                HasShadow="True"
+                >
 
-                        <Label x:Name="IconeCamera"
-                            Text="📷"
-                            FontSize="40"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center" />
-                    </Grid>
+                <ScrollView>
+                    <VerticalStackLayout Spacing="18">
 
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="TirarFoto" />
-                    </Frame.GestureRecognizers>
+                        <Label 
+                            Text="Criar Conta"
+                            FontSize="26"
+                            TextColor="#1E1E1E"
+                            HorizontalOptions="Center"/>
 
-                </Frame>
+                        <Grid HorizontalOptions="Center">
 
-                <Label Text="Toque para adicionar foto"
-                    FontSize="12"
-                    HorizontalOptions="Center" />
+                            <Frame CornerRadius="60"
+                                   HeightRequest="120"
+                                   WidthRequest="120"
+                                   BackgroundColor="#F5F5F5"
+                                   Padding="0"
+                                   HasShadow="False"
+                                   InputTransparent="True">
 
-            </VerticalStackLayout>
+                                <Image x:Name="FotoPreview"
+                                       Aspect="AspectFill"
+                                       IsVisible="False"/>
+                            </Frame>
 
-            <Button Text="Salvar" Clicked="OnSalvarClicked" />
-        </VerticalStackLayout>
-    </ScrollView>
+                            <ImageButton x:Name="IconeCamera"
+                                         Source="camera.png"
+                                         BackgroundColor="White"
+                                         HeightRequest="40"
+                                         WidthRequest="40"
+                                         CornerRadius="20"
+                                         Clicked="TirarFoto"/>
+                        </Grid>
+
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Nome"/>
+                            <Entry x:Name="NomeEntry" Placeholder="Digite seu nome"/>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Email"/>
+                            <Entry x:Name="EmailEntry" Placeholder="Digite seu email" Keyboard="Email"/>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="PIN"/>
+                            <Entry x:Name="PinEntry"
+                                   Placeholder="Crie um PIN"
+                                   IsPassword="True"
+                                   Keyboard="Numeric"/>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Confirmar PIN"/>
+                            <Entry x:Name="ConfirmarPinEntry"
+                                   Placeholder="Repita o PIN"
+                                   IsPassword="True"
+                                   Keyboard="Numeric"/>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="10">
+
+                            <Button 
+                                Text="Cadastrar"
+                                BackgroundColor="#2F4DA3"
+                                TextColor="White"
+                                CornerRadius="12"
+                                HeightRequest="50"
+                                Clicked="OnSalvarClicked"/>
+
+                            <Button 
+                                Text="Voltar"
+                                BackgroundColor="Transparent"
+                                TextColor="#2F4DA3"
+                                BorderColor="#2F4DA3"
+                                BorderWidth="2"
+                                CornerRadius="12"
+                                HeightRequest="50"
+                                Clicked="OnVoltarClicked"/>
+
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+                </ScrollView>
+
+            </Frame>
+
+        </Grid>
+
+        <BoxView Grid.Row="2" BackgroundColor="#2F4DA3"/>
+
+    </Grid>
+
 </ContentPage>
